@@ -17,5 +17,5 @@ mono_crash.*.json
 
 # Development-only plugins (not part of release)
 addons/plugin_refresher/
-
+shader/
 

@@ -53,8 +53,10 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "+ Post New Shader"
 
-[node name="HBoxSoring" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxPages" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
+alignment = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2

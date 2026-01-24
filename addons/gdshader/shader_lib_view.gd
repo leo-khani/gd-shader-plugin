@@ -8,6 +8,7 @@ extends Control
 @onready var toast_label: Label = %ToastLabel
 @onready var search: TextEdit = %Search
 @onready var post_new_btn: Button = %PostNewBtn
+@onready var hbox_pages: HBoxContainer = $MarginContainer/VBoxContainer/HBoxPages
 
 const SHADER_CARD = preload("res://addons/gdshader/shader_card.tscn")
 const API_URL = "https://api.gdshader.com/shaders/"
@@ -15,6 +16,8 @@ const API_URL = "https://api.gdshader.com/shaders/"
 var is_fetching: bool = false
 var toast_timer: Timer
 var search_timer: Timer
+var current_page: int = 1
+var total_pages: int = 1
 
 func _ready():
 	visibility_changed.connect(_on_visibility_changed)
@@ -25,7 +28,7 @@ func _ready():
 	_setup_search_timer()
 	
 	if is_visible_in_tree():
-		fetch_shaders()
+		fetch_shaders(1)
 
 
 func _setup_toast_timer() -> void:
@@ -47,7 +50,7 @@ func _setup_search_timer() -> void:
 
 func _on_visibility_changed() -> void:
 	if is_visible_in_tree():
-		fetch_shaders()
+		fetch_shaders(1)
 
 
 func _on_search_text_changed() -> void:
@@ -55,22 +58,23 @@ func _on_search_text_changed() -> void:
 
 
 func _on_search_timer_timeout() -> void:
-	fetch_shaders()
+	fetch_shaders(1)
 
 ## Fetch shaders from the API with optional search query
-func fetch_shaders(search_query: String = "") -> void:
+func fetch_shaders(page: int = 1) -> void:
 	if is_fetching:
 		return
 	
-	if search_query == "" and search:
+	var search_query = ""
+	if search:
 		search_query = search.text.strip_edges()
 	
-	var url = API_URL
+	var url = API_URL + "?page=" + str(page) + "&per_page=20"
 	if search_query != "":
-		url += "?search=" + search_query.uri_encode()
+		url += "&search=" + search_query.uri_encode()
 	
 	is_fetching = true
-	var status_msg = "Searching for shaders..." if search_query else "Fetching shaders..."
+	var status_msg = "Searching (Page %d)..." % page if search_query else "Fetching (Page %d)..." % page
 	show_toast(status_msg, false)
 	
 	var error = httprequest.request(url)
@@ -90,9 +94,52 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		show_toast("Error: Failed to parse response", true)
 		return
 
-	var shader_count = json.size()
+	var shaders_data = []
+	if typeof(json) == TYPE_DICTIONARY and json.has("data"):
+		shaders_data = json["data"]
+		current_page = int(json.get("page", 1))
+		total_pages = int(json.get("total_pages", 1))
+		_update_pagination_controls()
+	elif typeof(json) == TYPE_ARRAY:
+		shaders_data = json
+		current_page = 1
+		total_pages = 1
+		_update_pagination_controls()
+	else:
+		show_toast("Error: Unexpected response format", true)
+		return
+
+	var shader_count = shaders_data.size()
 	show_toast("Loaded %d shader%s" % [shader_count, "s" if shader_count != 1 else ""], false)
-	populate_grid(json)
+	populate_grid(shaders_data)
+
+func _update_pagination_controls() -> void:
+	if not hbox_pages:
+		return
+		
+	for child in hbox_pages.get_children():
+		child.queue_free()
+	
+	# Previous Button
+	var prev_btn = Button.new()
+	prev_btn.text = "<"
+	prev_btn.disabled = current_page <= 1
+	prev_btn.pressed.connect(func(): fetch_shaders(current_page - 1))
+	hbox_pages.add_child(prev_btn)
+	
+	# Page Label
+	var label = Label.new()
+	label.text = "Page %d / %d" % [current_page, max(1, total_pages)]
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hbox_pages.add_child(label)
+	
+	# Next Button
+	var next_btn = Button.new()
+	next_btn.text = ">"
+	next_btn.disabled = current_page >= total_pages
+	next_btn.pressed.connect(func(): fetch_shaders(current_page + 1))
+	hbox_pages.add_child(next_btn)
 
 ## Populate the grid with shader cards from API data
 func populate_grid(json_data: Array) -> void:

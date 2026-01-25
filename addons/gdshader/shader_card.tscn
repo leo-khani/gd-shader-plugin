@@ -4,17 +4,20 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ft4r7"]
 bg_color = Color(0.096204735, 0.09620475, 0.096204735, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.19793725, 0.19793722, 0.19793722, 1)
+border_blend = true
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [node name="ShaderCard" type="PanelContainer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_right = 221.0
+offset_bottom = 211.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ft4r7")
@@ -31,15 +34,25 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 theme_override_constants/separation = 8
 
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 0
+
+[node name="ImagePreview" type="TextureRect" parent="MarginContainer/VBoxContainer/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+size_flags_vertical = 3
+expand_mode = 5
+stretch_mode = 5
+
 [node name="HBoxContainerInfo" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 8
-
-[node name="ImagePreview" type="TextureRect" parent="MarginContainer/VBoxContainer/HBoxContainerInfo"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-expand_mode = 2
-stretch_mode = 6
 
 [node name="InfoVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainerInfo"]
 layout_mode = 2
@@ -48,20 +61,30 @@ size_flags_vertical = 3
 theme_override_constants/separation = 2
 
 [node name="TitleLabel" type="LinkButton" parent="MarginContainer/VBoxContainer/HBoxContainerInfo/InfoVBox"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Shader Name Placeholder"
+underline = 1
 
 [node name="AuthorLabel" type="LinkButton" parent="MarginContainer/VBoxContainer/HBoxContainerInfo/InfoVBox"]
+unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6830766, 0.68307763, 0.68307686, 1)
+theme_override_font_sizes/font_size = 14
 text = "by AuthorName"
+underline = 1
 
 [node name="HBoxContainerBtns" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="ViewButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerBtns"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "View Code"
 
 [node name="DownloadButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainerBtns"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Download"

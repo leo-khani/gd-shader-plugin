@@ -6,7 +6,7 @@ extends PanelContainer
 signal download_requested(card: PanelContainer, shader_data: Dictionary)
 signal view_requested(shader_data: Dictionary)
 
-@onready var image_preview: TextureRect = $MarginContainer/VBoxContainer/HBoxContainerInfo/ImagePreview
+@onready var image_preview: TextureRect = %ImagePreview
 @onready var title_label: LinkButton = $MarginContainer/VBoxContainer/HBoxContainerInfo/InfoVBox/TitleLabel
 @onready var author_label: LinkButton = $MarginContainer/VBoxContainer/HBoxContainerInfo/InfoVBox/AuthorLabel
 @onready var view_button: Button = $MarginContainer/VBoxContainer/HBoxContainerBtns/ViewButton
@@ -32,6 +32,9 @@ func setup(data: Dictionary) -> void:
 	author_label.text = "by " + author_info.get("username", "Anonymous")
 	
 	var thumb_url = data.get("thumbnail_url", "")
+	if thumb_url == "": 
+		thumb_url = data.get("image_url", "")
+
 	if thumb_url != "":
 		_download_image(thumb_url)
 
